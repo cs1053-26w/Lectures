@@ -1,6 +1,10 @@
 import numpy as np
 import imageio
 
+# a size-5 1D Gaussian filter
+gauss1d5 = np.array([0.0625, 0.25, 0.375, 0.25, 0.0625]).reshape((1, 5))
+
+# x and y sobel filters:
 sobel_x = np.array([
     [1, 0, -1],
     [2, 0, -2],
@@ -70,15 +74,50 @@ def grad_mag(img):
     dy = convolve(img, sobel_y)
     return np.sqrt(dx ** 2 + dy ** 2)
 
+def separable_filter(img, k1, k2=None):
+    """ Apply a separable filter constructed from two 1d filters, k1 and k2.T.
+    If k2 is None, then k1 is used.
+    Precondition: k1 and k2 are symmetric, so convolution is equivalent to cross-correlation. """
+    if k2 is None:
+        k2 = k1
+    
+    return filter(filter(img, k1), k2.T)
+
+def down_2x(img):
+    """ Downsample img by a factor of 2 in each dimension.
+    Use prefiltering to avoid aliasing. 
+    Pre: img is grayscale (2d) """
+    # TODO
+    out = separable_filter(img, gauss1d5)
+    return out[::2,::2]
+    
+def down_4x(img):
+    return down_2x(down_2x(img))
 
 
+def up_2x(img, interp="nn"):
+    """ Upsample img by a factor of 2 in each dimension.
+    Pre: img is grayscale (2d)
+    interp is one of ("none", "nn", "gaussian", "linear") """
+    H, W, = img.shape
+    out = np.zeros((2*H, 2*W), dtype=img.dtype)
+    if interp == "none":
+        out[::2,::2] = img
+        return out
+    elif interp == "nn":
+        H, W, = img.shape
+        out = np.zeros((2*H, 2*W), dtype=img.dtype)
+        for (io, jo) in ((0, 0), (0, 1), (1, 0), (1, 1)):
+            out[io::2, jo::2] = img
+        return out
+        
+    elif interp == "gaussian":
+        out[::2,::2] = img
+        return separable_filter(out, gauss1d5) * 4
 
+    elif interp == "linear":
+        raise NotImplementedException # todo, perhaps later
 
+def up_4x(img, interp="nn"):
+    return up_2x(up_2x(img, interp=interp), interp=interp)
 
-
-
-
-
-
-
-   
