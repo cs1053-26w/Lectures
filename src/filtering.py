@@ -46,11 +46,15 @@ def filter(img, kernel):
       - filter is 2d and has odd side lengths """
     H, W = img.shape
     out = np.zeros_like(img)
-
-    # half-width:
-    hw = kernel.shape[0] // 2 
-
-    # TODO
+    # half-widths:
+    hwi = kernel.shape[0] // 2 
+    hwj = kernel.shape[1] // 2 
+    in_pad = np.pad(img, ((hwi, hwi), (hwj, hwj)))
+    
+    for i in range(H):
+        for j in range(W):
+            out[i,j] = (kernel * in_pad[hwi+i-hwi:hwi+i+hwi+1, hwj+j-hwj:hwj+j+hwj+1]).sum()
+    return out
    
 
 def convolve(img, kernel):
@@ -78,19 +82,3 @@ def grad_mag(img):
 
 
    
-def filter(img, kernel):
-    """ Apply filter to img using cross-correlation. Preconditions:
-      - img is a grayscale (2d) float image
-      - filter is 2d and has odd side lengths """
-    H, W = img.shape
-    out = np.zeros_like(img)
-
-    # half-widths:
-    hwi = kernel.shape[0] // 2 
-    hwj = kernel.shape[1] // 2 
-    in_pad = np.pad(img, ((hwi, hwi), (hwj, hwj)))
-    
-    for i in range(H):
-        for j in range(W):
-            out[i,j] = (kernel * in_pad[hwi+i-hwi:hwi+i+hwi+1, hwj+j-hwj:hwj+j+hwj+1]).sum()
-    return out
