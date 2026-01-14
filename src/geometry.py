@@ -19,8 +19,16 @@ def warp(img, tx, dsize=None):
         DH, DW = dsize[::-1]
     out = np.zeros((DH, DW))
 
-    # your code here
-    
+    # pseudocode written in class:
+    Tinv = np.linalg.inv(T)
+    for yp in range(out.shape[0]:
+        for xp in range(out.shape[1]):
+            p_prime = Tinv @ np.array([xp, yp, 1])
+            p_prime /= p_prime[2]
+            x, y = p_prime[:2]
+            out[yp,xp] = img[round(y), round(x)]
+    # not tested, may have bugs
+    # known bug: missing bounds checks on img access
     return out
 
 def warp_cv(img, tx, dsize=None):
