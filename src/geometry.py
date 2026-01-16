@@ -21,7 +21,7 @@ def warp(img, tx, dsize=None):
 
     # pseudocode written in class:
     Tinv = np.linalg.inv(T)
-    for yp in range(out.shape[0]:
+    for yp in range(out.shape[0]):
         for xp in range(out.shape[1]):
             p_prime = Tinv @ np.array([xp, yp, 1])
             p_prime /= p_prime[2]
